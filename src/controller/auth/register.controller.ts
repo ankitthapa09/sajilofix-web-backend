@@ -9,7 +9,8 @@ export async function register(req: Request, res: Response, next: NextFunction) 
   try {
     const body = req.body as RegisterInput;
 
-    // Roles are determined by email. Self-register must be citizen.
+    // Roles are determined by email.
+    // Citizens must register before login
     const role = roleFromEmail(body.email);
     if (role !== "citizen") {
       throw new HttpError(403, "Only citizens can self-register. Authority accounts are created by admin.");
