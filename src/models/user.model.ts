@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema(
       index: true,
     },
 
-    // phone no as the unique identification aaile ko lagi
+    // phone no as unique identification aaile ko lagi
     phone: {
       type: String,
       required: true,
