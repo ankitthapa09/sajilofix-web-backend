@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt, { type Secret } from "jsonwebtoken";
-import { UserModel } from "../../models/user.model";
+import { UserRepository } from "../../repositories/user.repository";
 import { HttpError } from "../../errors/httpError";
 import type { LoginInput } from "../../dtos/auth/login.dto";
 import { roleFromEmail } from "../../services/roleFromEmail.service";
@@ -12,14 +12,14 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     const body = req.body as LoginInput;
 
     const email = body.email.toLowerCase();
-    const user = await UserModel.findOne({ email });
+    const user = await UserRepository.findByEmail(email);
 
     if (!user) throw new HttpError(401, "Invalid email or password");
 
     const ok = await bcrypt.compare(body.password, user.passwordHash);
     if (!ok) throw new HttpError(401, "Invalid email or password");
 
-    // Roles are determined by email; ensure the stored role matches the rule.
+    
     const derivedRole = roleFromEmail(email);
     if (user.role !== derivedRole) {
       throw new HttpError(403, "Unauthorized: role does not match email rules");
