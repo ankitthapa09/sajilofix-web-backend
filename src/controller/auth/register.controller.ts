@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import { UserModel } from "../../models/user.model";
+import { UserRepository } from "../../repositories/user.repository";
 import { HttpError } from "../../errors/httpError";
 import type { RegisterInput } from "../../dtos/auth/register.dto";
 import { roleFromEmail } from "../../services/roleFromEmail.service";
@@ -18,15 +18,15 @@ export async function register(req: Request, res: Response, next: NextFunction) 
 
     const email = body.email.toLowerCase();
 
-    const existingByEmail = await UserModel.findOne({ email }).lean();
+    const existingByEmail = await UserRepository.findByEmail(email);
     if (existingByEmail) throw new HttpError(409, "Email already in use");
 
-    const existingByPhone = await UserModel.findOne({ phone: body.phone }).lean();
+    const existingByPhone = await UserRepository.findByPhone(body.phone);
     if (existingByPhone) throw new HttpError(409, "Phone already in use");
 
     const passwordHash = await bcrypt.hash(body.password, 10);
 
-    const user = await UserModel.create({
+    const user = await UserRepository.create({
       fullName: body.fullName,
       email,
       phone: body.phone,
