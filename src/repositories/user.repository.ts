@@ -6,8 +6,15 @@ export type UserDoc = Document & {
   fullName: string;
   email: string;
   phone: string;
+  phoneCountryCode: string;
+  phoneNationalNumber: string;
+  phoneE164: string;
   wardNumber: string;
   municipality: string;
+  district?: string;
+  tole?: string;
+  dob?: string;
+  citizenshipNumber?: string;
   passwordHash: string;
   role: string;
 };
@@ -17,8 +24,8 @@ export const UserRepository = {
     return UserModel.findOne({ email }).exec();
   },
 
-  findByPhone: async (phone: string) => {
-    return UserModel.findOne({ phone }).exec();
+  findByPhone: async (phoneE164: string) => {
+    return UserModel.findOne({ $or: [{ phoneE164 }, { phone: phoneE164 }] }).exec();
   },
 
   create: async (data: Partial<UserDoc>) => {

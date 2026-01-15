@@ -25,8 +25,33 @@ const userSchema = new mongoose.Schema(
       index: true,
     },
 
+    phoneCountryCode: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    phoneNationalNumber: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    phoneE164: {
+      type: String,
+      required: true,
+      trim: true,
+      unique: true,
+      index: true,
+    },
+
     wardNumber: { type: String, required: true, trim: true },
     municipality: { type: String, required: true, trim: true },
+
+    district: { type: String, trim: true },
+    tole: { type: String, trim: true },
+    dob: { type: String, trim: true },
+    citizenshipNumber: { type: String, trim: true },
 
     passwordHash: { type: String, required: true },
 
