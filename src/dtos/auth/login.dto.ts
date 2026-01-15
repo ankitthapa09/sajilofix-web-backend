@@ -14,6 +14,7 @@ export const loginSchema = z.object({
 
   // Front-end ma user select garna parne bhayeko bhayera aaile ko lagi yo optional xa bhanna chahanxu 
   userType: z.enum(["citizen", "admin"]).optional(),
+  roleIndex: z.number().int().min(0).max(1).optional(),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
