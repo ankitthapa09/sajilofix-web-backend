@@ -32,9 +32,10 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     );
 
     return res.status(200).json({
+      success: true,
       message: "Login successful",
       token,
-      user: {
+      data: {
         id: user._id.toString(),
         fullName: user.fullName,
         email: user.email,
