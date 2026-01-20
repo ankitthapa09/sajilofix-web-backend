@@ -86,8 +86,9 @@ export async function register(req: Request, res: Response, next: NextFunction) 
     });
 
     return res.status(201).json({
+      success: true,
       message: "Registered successfully",
-      user: {
+      data: {
         id: user._id.toString(),
         fullName: user.fullName,
         email: user.email,
