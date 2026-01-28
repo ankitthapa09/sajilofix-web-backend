@@ -17,9 +17,14 @@ export type UserDoc = Document & {
   citizenshipNumber?: string;
   passwordHash: string;
   role: string;
+  profilePhoto?: string;
 };
 
 export const UserRepository = {
+  findById: async (id: string) => {
+    return UserModel.findById(id).exec();
+  },
+
   findByEmail: async (email: string) => {
     return UserModel.findOne({ email }).exec();
   },
@@ -30,5 +35,13 @@ export const UserRepository = {
 
   create: async (data: Partial<UserDoc>) => {
     return UserModel.create(data as any);
+  },
+
+  setProfilePhoto: async (userId: string, profilePhoto: string) => {
+    return UserModel.findByIdAndUpdate(
+      userId,
+      { $set: { profilePhoto } },
+      { new: true }
+    ).exec();
   },
 };

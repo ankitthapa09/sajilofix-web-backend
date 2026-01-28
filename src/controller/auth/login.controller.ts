@@ -48,6 +48,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
         tole: user.tole,
         dob: user.dob,
         citizenshipNumber: user.citizenshipNumber,
+        profilePhoto: (user as any).profilePhoto,
         role: user.role,
       },
     });

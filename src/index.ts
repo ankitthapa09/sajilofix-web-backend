@@ -1,7 +1,9 @@
 import express from "express";
+import path from "path";
 import { connectDatabase } from "./database/connect";
 import { env } from "./config/env";
 import { authRouter } from "./routes/auth.routes";
+import { userRouter } from "./routes/user.routes";
 import { errorMiddleware } from "./middleware/error.middleware";
 
 async function bootstrap() {
@@ -10,8 +12,12 @@ async function bootstrap() {
   const app = express();
   app.use(express.json());
 
+  // Static files (profile photos, etc)
+  app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
   app.get("/health", (_req, res) => res.json({ ok: true }));
   app.use("/api/auth", authRouter);
+  app.use("/api/users", userRouter);
 
   app.use(errorMiddleware);
 

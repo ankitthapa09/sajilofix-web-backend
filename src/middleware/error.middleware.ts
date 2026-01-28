@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
+import multer from "multer";
 import { HttpError } from "../errors/httpError";
 
 export function errorMiddleware(
@@ -9,6 +10,10 @@ export function errorMiddleware(
 ) {
   if (err instanceof HttpError) {
     return res.status(err.statusCode).json({ message: err.message });
+  }
+
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({ message: err.message });
   }
 
   if (err instanceof Error) {
