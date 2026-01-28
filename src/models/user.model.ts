@@ -62,6 +62,8 @@ const userSchema = new mongoose.Schema(
       default: "citizen" satisfies UserRole,
       index: true,
     },
+
+    profilePhoto: { type: String, trim: true },
   },
   { timestamps: true }
 );

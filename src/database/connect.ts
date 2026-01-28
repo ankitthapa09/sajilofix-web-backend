@@ -6,6 +6,5 @@ export async function connectDatabase() {
 
   await mongoose.connect(env.MONGO_URI);
 
-  // eslint-disable-next-line no-console
   console.log("MongoDB connected");
 }
