@@ -1,21 +1,13 @@
 import type { NextFunction, Request, Response } from "express";
 import { HttpError } from "../../errors/httpError";
 import { UserRepository } from "../../repositories/user.repository";
-import { PROFILE_PHOTO_RELATIVE_DIR } from "../../middleware/upload.middleware";
 
-export async function updateMePhoto(req: Request, res: Response, next: NextFunction) {
+export async function getMe(req: Request, res: Response, next: NextFunction) {
   try {
     const userId = req.auth?.userId;
     if (!userId) throw new HttpError(401, "Unauthorized");
 
-    const file = req.file;
-    if (!file) throw new HttpError(400, "Missing file field 'photo'");
-
-    // Store as a URL-path-like string so clients can render it directly.
-    // Example: `uploads/profile_photos/<filename>`
-    const profilePhoto = `uploads/${PROFILE_PHOTO_RELATIVE_DIR}/${file.filename}`;
-
-    const user = await UserRepository.setProfilePhoto(userId, profilePhoto);
+    const user = await UserRepository.findById(userId);
     if (!user) throw new HttpError(404, "User not found");
 
     return res.status(200).json({

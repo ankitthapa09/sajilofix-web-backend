@@ -44,4 +44,12 @@ export const UserRepository = {
       { new: true }
     ).exec();
   },
+
+  clearProfilePhoto: async (userId: string) => {
+    return UserModel.findByIdAndUpdate(
+      userId,
+      { $unset: { profilePhoto: 1 } },
+      { new: true }
+    ).exec();
+  },
 };
