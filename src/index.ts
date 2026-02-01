@@ -12,7 +12,7 @@ async function bootstrap() {
   const app = express();
   app.use(express.json());
 
-  // Static files (profile photos, etc)
+
   app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
   app.get("/health", (_req, res) => res.json({ ok: true }));
