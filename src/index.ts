@@ -4,6 +4,7 @@ import { connectDatabase } from "./database/connect";
 import { env } from "./config/env";
 import { authRouter } from "./routes/auth.routes";
 import { userRouter } from "./routes/user.routes";
+import { adminRouter } from "./routes/admin.routes";
 import { errorMiddleware } from "./middleware/error.middleware";
 
 async function bootstrap() {
@@ -18,6 +19,7 @@ async function bootstrap() {
   app.get("/health", (_req, res) => res.json({ ok: true }));
   app.use("/api/auth", authRouter);
   app.use("/api/users", userRouter);
+  app.use("/api/admin", adminRouter);
 
   app.use(errorMiddleware);
 
