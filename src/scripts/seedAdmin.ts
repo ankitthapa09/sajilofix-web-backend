@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 
 import { connectDatabase } from "../database/connect";
-import { UserModel } from "../models/user.model";
+import { AdminUserModel, AuthorityUserModel, CitizenUserModel } from "../models/userCollections.model";
 import { roleFromEmail } from "../services/roleFromEmail.service";
 
 function requireScriptEnv(name: string): string {
@@ -44,13 +44,20 @@ async function main() {
 
   const forceUpdate = (process.env.ADMIN_FORCE_UPDATE ?? "false").toLowerCase() === "true";
 
-  const existingByEmail = await UserModel.findOne({ email }).exec();
+  const adminByEmail = await AdminUserModel.findOne({ email }).exec();
+  const authorityByEmail = await AuthorityUserModel.findOne({ email }).exec();
+  const citizenByEmail = await CitizenUserModel.findOne({ email }).exec();
+  const existingByEmail = adminByEmail ?? authorityByEmail ?? citizenByEmail;
 
-  const existingByPhone = await UserModel.findOne({
-    $or: [{ phoneE164 }, { phone: phoneE164 }],
-  }).exec();
+  const existingByPhone =
+    (await AdminUserModel.findOne({ $or: [{ phoneE164 }, { phone: phoneE164 }] }).exec()) ??
+    (await AuthorityUserModel.findOne({ $or: [{ phoneE164 }, { phone: phoneE164 }] }).exec()) ??
+    (await CitizenUserModel.findOne({ $or: [{ phoneE164 }, { phone: phoneE164 }] }).exec());
 
-  if (existingByPhone && (!existingByEmail || existingByPhone._id.toString() !== existingByEmail._id.toString())) {
+  if (
+    existingByPhone &&
+    (!existingByEmail || existingByPhone._id.toString() !== existingByEmail._id.toString())
+  ) {
     throw new Error(
       `Phone ${phoneE164} is already used by another account. Set ADMIN_PHONE_NATIONAL to a unique 10-digit number.`,
     );
@@ -58,13 +65,19 @@ async function main() {
 
   const passwordHash = await bcrypt.hash(password, 10);
 
+  if (existingByEmail && !adminByEmail) {
+    throw new Error(
+      `Email '${email}' already exists in a non-admin collection. Delete it first or choose a different ADMIN_EMAIL.`,
+    );
+  }
+
   if (existingByEmail) {
     if (!forceUpdate) {
       console.log(`Admin already exists for ${email}. No changes made.`);
       return;
     }
 
-    existingByEmail.set({
+    adminByEmail!.set({
       fullName,
       passwordHash,
       role: "admin",
@@ -76,12 +89,12 @@ async function main() {
       municipality,
     });
 
-    await existingByEmail.save();
+    await adminByEmail!.save();
     console.log(`Admin updated for ${email}.`);
     return;
   }
 
-  await UserModel.create({
+  await AdminUserModel.create({
     fullName,
     email,
     phone: phoneE164,

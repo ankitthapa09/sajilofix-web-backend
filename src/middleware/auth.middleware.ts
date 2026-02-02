@@ -8,6 +8,11 @@ type AuthTokenPayload = JwtPayload & {
   role?: string;
 };
 
+function normalizeRole(role: unknown): "admin" | "authority" | "citizen" | undefined {
+  if (role === "admin" || role === "authority" || role === "citizen") return role;
+  return undefined;
+}
+
 export function requireAuth(req: Request, _res: Response, next: NextFunction) {
   try {
     const header = req.header("authorization") ?? req.header("Authorization");
@@ -20,7 +25,7 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction) {
     const userId = payload.sub;
     if (!userId) throw new HttpError(401, "Invalid token payload");
 
-    req.auth = { userId, role: payload.role };
+    req.auth = { userId, role: normalizeRole(payload.role) };
     return next();
   } catch (err) {
     return next(err);

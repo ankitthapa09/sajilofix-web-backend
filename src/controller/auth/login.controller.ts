@@ -12,7 +12,8 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     const body = req.body as LoginInput;
 
     const email = body.email.toLowerCase();
-    const user = await UserRepository.findByEmail(email);
+    const derivedRole = roleFromEmail(email);
+    const user = await UserRepository.findByEmail(email, derivedRole);
 
     if (!user) throw new HttpError(401, "Invalid email or password");
 
@@ -20,7 +21,6 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     if (!ok) throw new HttpError(401, "Invalid email or password");
 
     
-    const derivedRole = roleFromEmail(email);
     if (user.role !== derivedRole) {
       throw new HttpError(403, "Unauthorized: role does not match email rules");
     }

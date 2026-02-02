@@ -1,4 +1,4 @@
-import type { UserRole } from "../models/user.model";
+import type { UserRole } from "../models/userCollections.model";
 
 export type RoleRules = {
   adminEmails: string[];
