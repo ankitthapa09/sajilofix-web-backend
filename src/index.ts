@@ -1,5 +1,7 @@
 import express from "express";
 import path from "path";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 import { connectDatabase } from "./database/connect";
 import { env } from "./config/env";
 import { authRouter } from "./routes/auth.routes";
@@ -11,6 +13,13 @@ async function bootstrap() {
   await connectDatabase();
 
   const app = express();
+  app.use(
+    cors({
+      origin: env.CORS_ORIGINS,
+      credentials: true,
+    })
+  );
+  app.use(cookieParser());
   app.use(express.json());
 
 

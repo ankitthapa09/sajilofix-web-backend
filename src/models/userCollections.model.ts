@@ -3,6 +3,9 @@ import mongoose, { type InferSchemaType, type Model } from "mongoose";
 export const USER_ROLES = ["admin", "authority", "citizen"] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
+export const USER_STATUSES = ["active", "suspended"] as const;
+export type UserStatus = (typeof USER_STATUSES)[number];
+
 const userSchema = new mongoose.Schema(
   {
     fullName: { type: String, required: true, trim: true },
@@ -60,6 +63,17 @@ const userSchema = new mongoose.Schema(
       enum: USER_ROLES,
       required: true,
       default: "citizen" satisfies UserRole,
+      index: true,
+    },
+
+    // Used mainly for authority accounts in the admin dashboard.
+    department: { type: String, trim: true },
+
+    status: {
+      type: String,
+      enum: USER_STATUSES,
+      required: true,
+      default: "active" satisfies UserStatus,
       index: true,
     },
 
