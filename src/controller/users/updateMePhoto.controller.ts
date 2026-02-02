@@ -13,8 +13,8 @@ export async function updateMePhoto(req: Request, res: Response, next: NextFunct
     if (!file) throw new HttpError(400, "Missing file field 'photo'");
 
     // Store as a URL-path-like string so clients can render it directly.
-    // Example: `uploads/profile_photos/<filename>`
-    const profilePhoto = `uploads/${PROFILE_PHOTO_RELATIVE_DIR}/${file.filename}`;
+    // Example: `/uploads/profile_photos/<filename>`
+    const profilePhoto = `/uploads/${PROFILE_PHOTO_RELATIVE_DIR}/${file.filename}`;
 
     const user = await UserRepository.setProfilePhoto(userId, profilePhoto, role as any);
     if (!user) throw new HttpError(404, "User not found");
