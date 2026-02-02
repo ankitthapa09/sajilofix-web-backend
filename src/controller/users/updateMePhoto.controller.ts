@@ -6,6 +6,7 @@ import { PROFILE_PHOTO_RELATIVE_DIR } from "../../middleware/upload.middleware";
 export async function updateMePhoto(req: Request, res: Response, next: NextFunction) {
   try {
     const userId = req.auth?.userId;
+    const role = req.auth?.role;
     if (!userId) throw new HttpError(401, "Unauthorized");
 
     const file = req.file;
@@ -15,7 +16,7 @@ export async function updateMePhoto(req: Request, res: Response, next: NextFunct
     // Example: `uploads/profile_photos/<filename>`
     const profilePhoto = `uploads/${PROFILE_PHOTO_RELATIVE_DIR}/${file.filename}`;
 
-    const user = await UserRepository.setProfilePhoto(userId, profilePhoto);
+    const user = await UserRepository.setProfilePhoto(userId, profilePhoto, role as any);
     if (!user) throw new HttpError(404, "User not found");
 
     return res.status(200).json({

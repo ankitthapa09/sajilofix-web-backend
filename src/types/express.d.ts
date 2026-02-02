@@ -4,7 +4,7 @@ declare module "express-serve-static-core" {
   interface Request {
     auth?: {
       userId: string;
-      role?: string;
+      role?: "admin" | "authority" | "citizen";
     };
   }
 }

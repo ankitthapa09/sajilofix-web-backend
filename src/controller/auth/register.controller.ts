@@ -55,7 +55,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
 
     const email = body.email.toLowerCase();
 
-    const existingByEmail = await UserRepository.findByEmail(email);
+    const existingByEmail = await UserRepository.findByEmail(email, role);
     if (existingByEmail) throw new HttpError(409, "Email already in use");
 
     const { phoneCountryCode, phoneNationalNumber, phoneE164 } = normalizeNepalPhone(body);
@@ -82,8 +82,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       dob: body.dob,
       citizenshipNumber: body.citizenshipNumber,
       passwordHash,
-      role,
-    });
+    }, role);
 
     return res.status(201).json({
       success: true,

@@ -3,6 +3,9 @@ import mongoose, { type InferSchemaType, type Model } from "mongoose";
 export const USER_ROLES = ["admin", "authority", "citizen"] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
+export const USER_STATUSES = ["active", "suspended"] as const;
+export type UserStatus = (typeof USER_STATUSES)[number];
+
 const userSchema = new mongoose.Schema(
   {
     fullName: { type: String, required: true, trim: true },
@@ -63,6 +66,17 @@ const userSchema = new mongoose.Schema(
       index: true,
     },
 
+    // Used mainly for authority accounts in the admin dashboard.
+    department: { type: String, trim: true },
+
+    status: {
+      type: String,
+      enum: USER_STATUSES,
+      required: true,
+      default: "active" satisfies UserStatus,
+      index: true,
+    },
+
     profilePhoto: { type: String, trim: true },
   },
   { timestamps: true }
@@ -70,5 +84,25 @@ const userSchema = new mongoose.Schema(
 
 export type User = InferSchemaType<typeof userSchema>;
 
-export const UserModel: Model<User> =
-  mongoose.models.User || mongoose.model<User>("User", userSchema);
+export const AdminUserModel: Model<User> =
+  mongoose.models.AdminUser || mongoose.model<User>("AdminUser", userSchema, "admin");
+
+export const AuthorityUserModel: Model<User> =
+  mongoose.models.AuthorityUser ||
+  mongoose.model<User>("AuthorityUser", userSchema, "authority");
+
+export const CitizenUserModel: Model<User> =
+  mongoose.models.CitizenUser || mongoose.model<User>("CitizenUser", userSchema, "citizen");
+
+export const ALL_USER_MODELS: Array<Model<User>> = [AdminUserModel, AuthorityUserModel, CitizenUserModel];
+
+export function modelForRole(role: UserRole): Model<User> {
+  switch (role) {
+    case "admin":
+      return AdminUserModel;
+    case "authority":
+      return AuthorityUserModel;
+    case "citizen":
+      return CitizenUserModel;
+  }
+}
