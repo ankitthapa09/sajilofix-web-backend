@@ -79,4 +79,13 @@ export const UserRepository = {
         .exec()
     );
   },
+
+  updateById: async (userId: string, updates: Partial<UserDoc>, role?: UserRole) => {
+    const models = role ? [modelForRole(role)] : ROLE_MODELS;
+    return findInMany(models, (m) =>
+      m
+        .findByIdAndUpdate(userId, { $set: updates }, { new: true })
+        .exec()
+    );
+  },
 };
