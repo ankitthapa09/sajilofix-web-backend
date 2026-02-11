@@ -8,6 +8,10 @@ function toRow(role: "admin" | "authority" | "citizen", doc: any) {
     fullName: doc.fullName,
     email: doc.email,
     role,
+    profilePhoto:
+      typeof doc.profilePhoto === "string" && doc.profilePhoto.trim()
+        ? doc.profilePhoto.trim()
+        : undefined,
     department: typeof doc.department === "string" && doc.department.trim() ? doc.department : "—",
     status: doc.status === "suspended" ? ("suspended" as const) : ("active" as const),
     joinedDate: createdAt.toISOString().slice(0, 10),
