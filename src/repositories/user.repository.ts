@@ -48,6 +48,10 @@ export const UserRepository = {
     return modelForRole(role).findOne({ email }).exec();
   },
 
+  findByEmailAcrossRoles: async (email: string) => {
+    return findInMany(ROLE_MODELS, (m) => m.findOne({ email }).exec());
+  },
+
   findByPhone: async (phoneE164: string) => {
     return findInMany(ROLE_MODELS, (m) =>
       m.findOne({ $or: [{ phoneE164 }, { phone: phoneE164 }] }).exec()

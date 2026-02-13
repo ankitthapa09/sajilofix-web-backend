@@ -20,4 +20,8 @@ export const env = {
   JWT_SECRET: requireEnv("JWT_SECRET"),
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN ?? "7d",
   CORS_ORIGINS: parseCorsOrigins(process.env.CORS_ORIGINS),
+  EMAIL_USER: requireEnv("EMAIL_USER"),
+  EMAIL_PASS: requireEnv("EMAIL_PASS"),
+  CLIENT_URL: requireEnv("CLIENT_URL"),
+  PASSWORD_RESET_EXPIRES_IN: process.env.PASSWORD_RESET_EXPIRES_IN ?? "1h",
 };
