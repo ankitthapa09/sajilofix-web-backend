@@ -1,0 +1,9 @@
+process.env.NODE_ENV = process.env.NODE_ENV || "test";
+process.env.MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/sajilofix_test";
+process.env.JWT_SECRET = process.env.JWT_SECRET || "test-secret";
+process.env.JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1h";
+process.env.CORS_ORIGINS = process.env.CORS_ORIGINS || "http://localhost:3000";
+process.env.EMAIL_USER = process.env.EMAIL_USER || "test@example.com";
+process.env.EMAIL_PASS = process.env.EMAIL_PASS || "test-pass";
+process.env.CLIENT_URL = process.env.CLIENT_URL || "http://localhost:3000";
+process.env.PASSWORD_RESET_EXPIRES_IN = process.env.PASSWORD_RESET_EXPIRES_IN || "1h";
