@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { HttpError } from "../../errors/httpError";
+import { ISSUE_PHOTOS_RELATIVE_DIR } from "../../middleware/upload.middleware";
 import { createIssueReport } from "../../services/issue.service";
 import type { CreateIssueInput } from "../../dtos/issues/createIssue.dto";
 
@@ -12,7 +13,16 @@ export async function createIssue(req: Request, res: Response, next: NextFunctio
       throw new HttpError(401, "Unauthorized");
     }
 
-    const result = await createIssueReport(body, reporterId);
+    const files = Array.isArray(req.files) ? (req.files as Express.Multer.File[]) : [];
+    const photoPaths = files.map((file) => `${ISSUE_PHOTOS_RELATIVE_DIR}/${file.filename}`);
+
+    const result = await createIssueReport(
+      {
+        ...body,
+        photos: photoPaths.length ? photoPaths : body.photos,
+      },
+      reporterId
+    );
 
     return res.status(201).json({
       success: true,
