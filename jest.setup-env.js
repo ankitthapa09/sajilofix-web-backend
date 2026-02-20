@@ -1,5 +1,5 @@
 process.env.NODE_ENV = process.env.NODE_ENV || "test";
-process.env.MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/sajilofix_test";
+process.env.MONGO_URI = process.env.MONGO_URI || "mongodb+srv://ankitthapa09_db_user:LgW3Tzov8esZv2PB@cluster0.6yxvzuw.mongodb.net/sajilofix_test";
 process.env.JWT_SECRET = process.env.JWT_SECRET || "test-secret";
 process.env.JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1h";
 process.env.CORS_ORIGINS = process.env.CORS_ORIGINS || "http://localhost:3000";

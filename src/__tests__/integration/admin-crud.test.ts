@@ -11,7 +11,7 @@ describe("Admin CRUD Integration Tests", () => {
   const adminUser = {
     fullName: "Admin Test",
     email: "admin@sajilofix.com",
-    password: "Admin@1234",
+    password: "Admin@sajilofix12345",
     phone: "9800000001",
     phoneCountryCode: "+977",
     phoneNationalNumber: "9800000001",

@@ -5,7 +5,6 @@ import {
   AuthorityUserModel,
   CitizenUserModel,
 } from "../../models/userCollections.model";
-import "@types/jest";
 
 describe("Authentication Integration Tests", () => {
   const testUser = {
