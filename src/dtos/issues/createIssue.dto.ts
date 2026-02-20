@@ -12,14 +12,13 @@ const locationSchema = z.object({
 
 export const createIssueSchema = z.object({
   category: z.enum([
-    "road",
-    "lighting",
-    "waste",
-    "water",
-    "drainage",
-    "parks",
-    "traffic",
-    "other",
+    "roads_potholes",
+    "electricity",
+    "water_supply",
+    "waste_management",
+    "street_lights",
+    "public_infrastructure",
+    "others",
   ]),
   title: z.string().min(3, "Title is required"),
   description: z.string().min(10, "Description is required"),

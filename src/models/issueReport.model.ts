@@ -1,14 +1,13 @@
 import mongoose, { type InferSchemaType, type Model } from "mongoose";
 
 export const ISSUE_CATEGORIES = [
-  "road",
-  "lighting",
-  "waste",
-  "water",
-  "drainage",
-  "parks",
-  "traffic",
-  "other",
+  "roads_potholes",
+  "electricity",
+  "water_supply",
+  "waste_management",
+  "street_lights",
+  "public_infrastructure",
+  "others",
 ] as const;
 export type IssueCategory = (typeof ISSUE_CATEGORIES)[number];
 
