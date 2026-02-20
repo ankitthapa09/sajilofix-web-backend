@@ -40,3 +40,62 @@ export async function createIssueReport(input: CreateIssueInput, reporterId: str
     createdAt: created.createdAt,
   };
 }
+
+export async function listIssueReports(reporterId: string) {
+  if (!reporterId) {
+    throw new HttpError(401, "Unauthorized");
+  }
+
+  if (!Types.ObjectId.isValid(reporterId)) {
+    throw new HttpError(400, "Invalid reporter id");
+  }
+
+  const items = await IssueRepository.listByReporter(reporterId);
+
+  return items.map((issue) => ({
+    id: issue._id.toString(),
+    category: issue.category,
+    title: issue.title,
+    description: issue.description,
+    urgency: issue.urgency,
+    status: issue.status,
+    location: issue.location,
+    photos: issue.photos ?? [],
+    createdAt: issue.createdAt,
+  }));
+}
+
+export async function getIssueReport(issueId: string, reporterId: string) {
+  if (!reporterId) {
+    throw new HttpError(401, "Unauthorized");
+  }
+
+  if (!Types.ObjectId.isValid(reporterId)) {
+    throw new HttpError(400, "Invalid reporter id");
+  }
+
+  if (!Types.ObjectId.isValid(issueId)) {
+    throw new HttpError(400, "Invalid issue id");
+  }
+
+  const issue = await IssueRepository.findById(issueId);
+  if (!issue) {
+    throw new HttpError(404, "Issue not found");
+  }
+
+  if (issue.reporterId?.toString() !== reporterId) {
+    throw new HttpError(403, "Forbidden");
+  }
+
+  return {
+    id: issue._id.toString(),
+    category: issue.category,
+    title: issue.title,
+    description: issue.description,
+    urgency: issue.urgency,
+    status: issue.status,
+    location: issue.location,
+    photos: issue.photos ?? [],
+    createdAt: issue.createdAt,
+  };
+}
