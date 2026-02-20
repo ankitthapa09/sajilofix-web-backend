@@ -53,8 +53,8 @@ const issueReportSchema = new mongoose.Schema(
     },
 
     location: {
-      latitude: { type: Number, required: true },
-      longitude: { type: Number, required: true },
+      latitude: { type: Number },
+      longitude: { type: Number },
       address: { type: String, required: true, trim: true },
       district: { type: String, trim: true },
       municipality: { type: String, trim: true },
