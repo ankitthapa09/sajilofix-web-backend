@@ -27,6 +27,7 @@ export async function getMe(req: Request, res: Response, next: NextFunction) {
         citizenshipNumber: user.citizenshipNumber,
         profilePhoto: user.profilePhoto,
         role: user.role,
+        status: user.status,
       },
     });
   } catch (err) {
