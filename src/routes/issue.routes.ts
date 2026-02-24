@@ -6,6 +6,8 @@ import { createIssueSchema } from "../dtos/issues/createIssue.dto";
 import { createIssue } from "../controller/issues/createIssue.controller";
 import { getIssue } from "../controller/issues/getIssue.controller";
 import { listIssues } from "../controller/issues/listIssues.controller";
+import { updateIssueStatusController } from "../controller/issues/updateIssueStatus.controller";
+import { updateIssueStatusSchema } from "../dtos/issues/updateIssueStatus.dto";
 
 export const issueRouter = Router();
 
@@ -83,3 +85,11 @@ issueRouter.get("/", requireAuth, listIssues);
 
 // GET /api/issues/:id
 issueRouter.get("/:id", requireAuth, getIssue);
+
+// PATCH /api/issues/:id/status
+issueRouter.patch(
+	"/:id/status",
+	requireAuth,
+	validateBody(updateIssueStatusSchema),
+	updateIssueStatusController
+);

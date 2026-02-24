@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 import { HttpError } from "../errors/httpError";
 import { IssueRepository } from "../repositories/issue.repository";
 import type { CreateIssueInput } from "../dtos/issues/createIssue.dto";
+import type { IssueStatus } from "../models/issueReport.model";
 
 export async function createIssueReport(input: CreateIssueInput, reporterId: string) {
   if (!reporterId) {
@@ -63,6 +64,44 @@ export async function listIssueReports(reporterId: string) {
     photos: issue.photos ?? [],
     createdAt: issue.createdAt,
   }));
+}
+
+export async function listAllIssueReports() {
+  const items = await IssueRepository.listAll();
+
+  return items.map((issue) => {
+    const reporter = issue.reporterId as { _id?: Types.ObjectId; fullName?: string } | null;
+    return {
+      id: issue._id.toString(),
+      category: issue.category,
+      title: issue.title,
+      description: issue.description,
+      urgency: issue.urgency,
+      status: issue.status,
+      location: issue.location,
+      photos: issue.photos ?? [],
+      createdAt: issue.createdAt,
+      reporterId: reporter?._id?.toString(),
+      reporterName: reporter?.fullName,
+    };
+  });
+}
+
+export async function updateIssueStatus(issueId: string, status: IssueStatus) {
+  if (!Types.ObjectId.isValid(issueId)) {
+    throw new HttpError(400, "Invalid issue id");
+  }
+
+  const updated = await IssueRepository.updateStatus(issueId, status);
+  if (!updated) {
+    throw new HttpError(404, "Issue not found");
+  }
+
+  return {
+    id: updated._id.toString(),
+    status: updated.status,
+    updatedAt: updated.updatedAt,
+  };
 }
 
 export async function getIssueReport(issueId: string, reporterId: string) {
