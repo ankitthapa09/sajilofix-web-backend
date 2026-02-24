@@ -138,3 +138,30 @@ export async function getIssueReport(issueId: string, reporterId: string) {
     createdAt: issue.createdAt,
   };
 }
+
+export async function getIssueReportForAuthority(issueId: string) {
+  if (!Types.ObjectId.isValid(issueId)) {
+    throw new HttpError(400, "Invalid issue id");
+  }
+
+  const issue = await IssueRepository.findByIdWithReporter(issueId);
+  if (!issue) {
+    throw new HttpError(404, "Issue not found");
+  }
+
+  const reporter = issue.reporterId as { _id?: Types.ObjectId; fullName?: string } | null;
+
+  return {
+    id: issue._id.toString(),
+    category: issue.category,
+    title: issue.title,
+    description: issue.description,
+    urgency: issue.urgency,
+    status: issue.status,
+    location: issue.location,
+    photos: issue.photos ?? [],
+    createdAt: issue.createdAt,
+    reporterId: reporter?._id?.toString(),
+    reporterName: reporter?.fullName,
+  };
+}

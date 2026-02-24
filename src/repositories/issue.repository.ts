@@ -12,6 +12,12 @@ export const IssueRepository = {
     return IssueReportModel.findById(id).exec();
   },
 
+  findByIdWithReporter: async (id: string) => {
+    return IssueReportModel.findById(id)
+      .populate("reporterId", "fullName")
+      .exec();
+  },
+
   listAll: async () => {
     return IssueReportModel.find()
       .sort({ createdAt: -1 })
