@@ -6,6 +6,7 @@ import { createIssueSchema } from "../dtos/issues/createIssue.dto";
 import { createIssue } from "../controller/issues/createIssue.controller";
 import { getIssue } from "../controller/issues/getIssue.controller";
 import { listIssues } from "../controller/issues/listIssues.controller";
+import { listPriorityIssues } from "../controller/issues/listPriorityIssues.controller";
 import { updateIssueStatusController } from "../controller/issues/updateIssueStatus.controller";
 import { updateIssueStatusSchema } from "../dtos/issues/updateIssueStatus.dto";
 
@@ -82,6 +83,9 @@ issueRouter.post(
 
 // GET /api/issues
 issueRouter.get("/", requireAuth, listIssues);
+
+// GET /api/issues/priority
+issueRouter.get("/priority", requireAuth, listPriorityIssues);
 
 // GET /api/issues/:id
 issueRouter.get("/:id", requireAuth, getIssue);

@@ -25,6 +25,16 @@ export const IssueRepository = {
       .exec();
   },
 
+  listPriority: async () => {
+    return IssueReportModel.find({
+      urgency: { $in: ["urgent", "high"] },
+      status: { $in: ["pending", "in_progress"] },
+    })
+      .sort({ createdAt: -1 })
+      .populate("reporterId", "fullName")
+      .exec();
+  },
+
   listByReporter: async (reporterId: string) => {
     return IssueReportModel.find({ reporterId }).sort({ createdAt: -1 }).exec();
   },

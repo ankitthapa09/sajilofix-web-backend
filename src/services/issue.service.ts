@@ -87,6 +87,34 @@ export async function listAllIssueReports() {
   });
 }
 
+export async function listPriorityIssueReports() {
+  const items = await IssueRepository.listPriority();
+  const urgencyWeight: Record<string, number> = { urgent: 2, high: 1 };
+
+  const mapped = items.map((issue) => {
+    const reporter = issue.reporterId as { _id?: Types.ObjectId; fullName?: string } | null;
+    return {
+      id: issue._id.toString(),
+      category: issue.category,
+      title: issue.title,
+      description: issue.description,
+      urgency: issue.urgency,
+      status: issue.status,
+      location: issue.location,
+      photos: issue.photos ?? [],
+      createdAt: issue.createdAt,
+      reporterId: reporter?._id?.toString(),
+      reporterName: reporter?.fullName,
+    };
+  });
+
+  return mapped.sort((a, b) => {
+    const weightDiff = (urgencyWeight[b.urgency] ?? 0) - (urgencyWeight[a.urgency] ?? 0);
+    if (weightDiff !== 0) return weightDiff;
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+}
+
 export async function updateIssueStatus(issueId: string, status: IssueStatus) {
   if (!Types.ObjectId.isValid(issueId)) {
     throw new HttpError(400, "Invalid issue id");
