@@ -1,4 +1,4 @@
-import { HttpError } from "../../errors/httpError";
+import { HttpError } from "../errors/httpError";
 
 export function normalizeNepalPhone(phoneRaw: string) {
   const raw = phoneRaw.trim();
