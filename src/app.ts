@@ -7,6 +7,7 @@ import { authRouter } from "./routes/auth.routes";
 import { userRouter } from "./routes/user.routes";
 import { adminRouter } from "./routes/admin.routes";
 import { issueRouter } from "./routes/issue.routes";
+import { notificationRouter } from "./routes/notification.routes";
 import { errorMiddleware } from "./middleware/error.middleware";
 
 const app = express();
@@ -27,6 +28,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/issues", issueRouter);
+app.use("/api/notifications", notificationRouter);
 
 app.use(errorMiddleware);
 

@@ -3,6 +3,7 @@ import { HttpError } from "../errors/httpError";
 import { IssueRepository } from "../repositories/issue.repository";
 import type { CreateIssueInput } from "../dtos/issues/createIssue.dto";
 import type { IssueStatus, IssueStatusActorRole } from "../models/issueReport.model";
+import { notifyIssueCreated, notifyIssueStatusChanged } from "./notification.service";
 
 function toGeoPoint(latitude?: number, longitude?: number) {
   if (typeof latitude !== "number" || typeof longitude !== "number") {
@@ -50,6 +51,18 @@ export async function createIssueReport(input: CreateIssueInput, reporterId: str
   };
 
   const created = await IssueRepository.create(normalized);
+
+  try {
+    await notifyIssueCreated({
+      recipientUserId: reporterId,
+      recipientRole: "citizen",
+      issueId: created._id.toString(),
+      issueTitle: created.title,
+      category: created.category,
+    });
+  } catch (error) {
+    console.error("Failed to create issue notification", error);
+  }
 
   return {
     id: created._id.toString(),
@@ -157,6 +170,22 @@ export async function updateIssueStatus(
   const updated = await IssueRepository.updateStatus(issueId, status, changedByRole, changedByUserId);
   if (!updated) {
     throw new HttpError(404, "Issue not found");
+  }
+
+  const reporterUserId = updated.reporterId?.toString();
+  if (reporterUserId) {
+    try {
+      await notifyIssueStatusChanged({
+        recipientUserId: reporterUserId,
+        recipientRole: "citizen",
+        issueId: updated._id.toString(),
+        issueTitle: updated.title,
+        status: updated.status,
+        changedByRole,
+      });
+    } catch (error) {
+      console.error("Failed to create issue status notification", error);
+    }
   }
 
   return {
