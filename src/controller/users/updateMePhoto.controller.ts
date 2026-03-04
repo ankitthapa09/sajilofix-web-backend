@@ -1,40 +1,15 @@
 import type { NextFunction, Request, Response } from "express";
-import { HttpError } from "../../errors/httpError";
-import { UserRepository } from "../../repositories/user.repository";
-import { PROFILE_PHOTO_RELATIVE_DIR } from "../../middleware/upload.middleware";
+import { updateMyProfilePhoto } from "../../services/profile.service";
 
 export async function updateMePhoto(req: Request, res: Response, next: NextFunction) {
   try {
     const userId = req.auth?.userId;
     const role = req.auth?.role;
-    if (!userId) throw new HttpError(401, "Unauthorized");
-
-    const file = req.file;
-    if (!file) throw new HttpError(400, "Missing file field 'photo'");
-
-    // Store as a URL-path-like string so clients can render it directly.
-    // Example: `/uploads/profile_photos/<filename>`
-    const profilePhoto = `/uploads/${PROFILE_PHOTO_RELATIVE_DIR}/${file.filename}`;
-
-    const user = await UserRepository.setProfilePhoto(userId, profilePhoto, role as any);
-    if (!user) throw new HttpError(404, "User not found");
+    const user = await updateMyProfilePhoto(userId ?? "", role, req.file);
 
     return res.status(200).json({
       user: {
-        id: user._id.toString(),
-        fullName: user.fullName,
-        email: user.email,
-        phone: user.phone,
-        phoneCountryCode: user.phoneCountryCode,
-        phoneNationalNumber: user.phoneNationalNumber,
-        wardNumber: user.wardNumber,
-        municipality: user.municipality,
-        district: user.district,
-        tole: user.tole,
-        dob: user.dob,
-        citizenshipNumber: user.citizenshipNumber,
-        profilePhoto: user.profilePhoto,
-        role: user.role,
+        ...user,
       },
     });
   } catch (err) {
