@@ -27,9 +27,14 @@ export type UserDoc = Document & {
   profilePhoto?: string;
 };
 
+export type UserIdWithRole = {
+  userId: string;
+  role: UserRole;
+};
+
 async function findInMany<T>(models: Array<Model<any>>, finder: (m: Model<any>) => Promise<T | null>) {
   for (const m of models) {
-    // eslint-disable-next-line no-await-in-loop
+    
     const v = await finder(m);
     if (v) return v;
   }
@@ -91,5 +96,25 @@ export const UserRepository = {
         .findByIdAndUpdate(userId, { $set: updates }, { new: true })
         .exec()
     );
+  },
+
+  listActiveUserIdsByRoles: async (roles: UserRole[]): Promise<UserIdWithRole[]> => {
+    const uniqueRoles = Array.from(new Set(roles));
+
+    const records = await Promise.all(
+      uniqueRoles.map(async (role) => {
+        const users = await modelForRole(role)
+          .find({ status: "active" }, { _id: 1 })
+          .lean()
+          .exec();
+
+        return users.map((user) => ({
+          userId: String(user._id),
+          role,
+        }));
+      })
+    );
+
+    return records.flat();
   },
 };
