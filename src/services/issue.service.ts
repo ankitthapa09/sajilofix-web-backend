@@ -4,6 +4,21 @@ import { IssueRepository } from "../repositories/issue.repository";
 import type { CreateIssueInput } from "../dtos/issues/createIssue.dto";
 import type { IssueStatus } from "../models/issueReport.model";
 
+function toGeoPoint(latitude?: number, longitude?: number) {
+  if (typeof latitude !== "number" || typeof longitude !== "number") {
+    return undefined;
+  }
+
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    return undefined;
+  }
+
+  return {
+    type: "Point" as const,
+    coordinates: [longitude, latitude],
+  };
+}
+
 export async function createIssueReport(input: CreateIssueInput, reporterId: string) {
   if (!reporterId) {
     throw new HttpError(401, "Unauthorized");
@@ -23,6 +38,7 @@ export async function createIssueReport(input: CreateIssueInput, reporterId: str
     location: {
       latitude: input.location.latitude,
       longitude: input.location.longitude,
+      geo: toGeoPoint(input.location.latitude, input.location.longitude),
       address: input.location.address.trim(),
       district: input.location.district.trim(),
       municipality: input.location.municipality.trim(),

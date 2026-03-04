@@ -17,6 +17,25 @@ export type IssueUrgency = (typeof ISSUE_URGENCY)[number];
 export const ISSUE_STATUS = ["pending", "in_progress", "resolved", "rejected"] as const;
 export type IssueStatus = (typeof ISSUE_STATUS)[number];
 
+const pointSchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      enum: ["Point"],
+      required: true,
+    },
+    coordinates: {
+      type: [Number],
+      required: true,
+      validate: {
+        validator: (value: number[]) => Array.isArray(value) && value.length === 2,
+        message: "Geo coordinates must be [longitude, latitude]",
+      },
+    },
+  },
+  { _id: false }
+);
+
 const issueReportSchema = new mongoose.Schema(
   {
     reporterId: {
@@ -54,6 +73,9 @@ const issueReportSchema = new mongoose.Schema(
     location: {
       latitude: { type: Number },
       longitude: { type: Number },
+      geo: {
+        type: pointSchema,
+      },
       address: { type: String, required: true, trim: true },
       district: { type: String, trim: true },
       municipality: { type: String, trim: true },
@@ -65,6 +87,8 @@ const issueReportSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+issueReportSchema.index({ "location.geo": "2dsphere" });
 
 export type IssueReport = InferSchemaType<typeof issueReportSchema>;
 
