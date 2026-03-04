@@ -6,14 +6,15 @@ import type { UpdateIssueStatusInput } from "../../dtos/issues/updateIssueStatus
 export async function updateIssueStatusController(req: Request, res: Response, next: NextFunction) {
   try {
     const role = req.auth?.role;
-    if (role !== "authority" && role !== "admin") {
+    const userId = req.auth?.userId;
+    if ((role !== "authority" && role !== "admin") || !userId) {
       throw new HttpError(403, "Forbidden");
     }
 
     const issueId = req.params.id;
     const body = req.body as UpdateIssueStatusInput;
 
-    const result = await updateIssueStatus(issueId, body.status);
+    const result = await updateIssueStatus(issueId, body.status, role, userId);
 
     return res.status(200).json({
       success: true,

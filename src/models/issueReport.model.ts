@@ -17,6 +17,9 @@ export type IssueUrgency = (typeof ISSUE_URGENCY)[number];
 export const ISSUE_STATUS = ["pending", "in_progress", "resolved", "rejected"] as const;
 export type IssueStatus = (typeof ISSUE_STATUS)[number];
 
+export const ISSUE_STATUS_ACTOR_ROLES = ["admin", "authority"] as const;
+export type IssueStatusActorRole = (typeof ISSUE_STATUS_ACTOR_ROLES)[number];
+
 const pointSchema = new mongoose.Schema(
   {
     type: {
@@ -69,6 +72,48 @@ const issueReportSchema = new mongoose.Schema(
       default: "pending" satisfies IssueStatus,
       index: true,
     },
+
+    statusUpdatedByRole: {
+      type: String,
+      enum: ISSUE_STATUS_ACTOR_ROLES,
+      required: false,
+    },
+
+    statusUpdatedByUserId: {
+      type: String,
+      trim: true,
+      required: false,
+    },
+
+    statusUpdatedAt: {
+      type: Date,
+      required: false,
+    },
+
+    statusHistory: [
+      {
+        _id: false,
+        status: {
+          type: String,
+          enum: ISSUE_STATUS,
+          required: true,
+        },
+        changedByRole: {
+          type: String,
+          enum: ISSUE_STATUS_ACTOR_ROLES,
+          required: true,
+        },
+        changedByUserId: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        changedAt: {
+          type: Date,
+          required: true,
+        },
+      },
+    ],
 
     location: {
       latitude: { type: Number },

@@ -39,7 +39,27 @@ export const IssueRepository = {
     return IssueReportModel.find({ reporterId }).sort({ createdAt: -1 }).exec();
   },
 
-  updateStatus: async (id: string, status: string) => {
-    return IssueReportModel.findByIdAndUpdate(id, { status }, { new: true }).exec();
+  updateStatus: async (id: string, status: string, changedByRole: "admin" | "authority", changedByUserId: string) => {
+    const changedAt = new Date();
+    return IssueReportModel.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          status,
+          statusUpdatedByRole: changedByRole,
+          statusUpdatedByUserId: changedByUserId,
+          statusUpdatedAt: changedAt,
+        },
+        $push: {
+          statusHistory: {
+            status,
+            changedByRole,
+            changedByUserId,
+            changedAt,
+          },
+        },
+      },
+      { new: true }
+    ).exec();
   },
 };

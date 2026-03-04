@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 import { HttpError } from "../errors/httpError";
 import { IssueRepository } from "../repositories/issue.repository";
 import type { CreateIssueInput } from "../dtos/issues/createIssue.dto";
-import type { IssueStatus } from "../models/issueReport.model";
+import type { IssueStatus, IssueStatusActorRole } from "../models/issueReport.model";
 
 function toGeoPoint(latitude?: number, longitude?: number) {
   if (typeof latitude !== "number" || typeof longitude !== "number") {
@@ -79,6 +79,9 @@ export async function listIssueReports(reporterId: string) {
     location: issue.location,
     photos: issue.photos ?? [],
     createdAt: issue.createdAt,
+    statusUpdatedByRole: issue.statusUpdatedByRole,
+    statusUpdatedByUserId: issue.statusUpdatedByUserId,
+    statusUpdatedAt: issue.statusUpdatedAt,
   }));
 }
 
@@ -99,6 +102,9 @@ export async function listAllIssueReports() {
       createdAt: issue.createdAt,
       reporterId: reporter?._id?.toString(),
       reporterName: reporter?.fullName,
+      statusUpdatedByRole: issue.statusUpdatedByRole,
+      statusUpdatedByUserId: issue.statusUpdatedByUserId,
+      statusUpdatedAt: issue.statusUpdatedAt,
     };
   });
 }
@@ -121,6 +127,9 @@ export async function listPriorityIssueReports() {
       createdAt: issue.createdAt,
       reporterId: reporter?._id?.toString(),
       reporterName: reporter?.fullName,
+      statusUpdatedByRole: issue.statusUpdatedByRole,
+      statusUpdatedByUserId: issue.statusUpdatedByUserId,
+      statusUpdatedAt: issue.statusUpdatedAt,
     };
   });
 
@@ -131,12 +140,21 @@ export async function listPriorityIssueReports() {
   });
 }
 
-export async function updateIssueStatus(issueId: string, status: IssueStatus) {
+export async function updateIssueStatus(
+  issueId: string,
+  status: IssueStatus,
+  changedByRole: IssueStatusActorRole,
+  changedByUserId: string
+) {
   if (!Types.ObjectId.isValid(issueId)) {
     throw new HttpError(400, "Invalid issue id");
   }
 
-  const updated = await IssueRepository.updateStatus(issueId, status);
+  if (!changedByUserId) {
+    throw new HttpError(401, "Unauthorized");
+  }
+
+  const updated = await IssueRepository.updateStatus(issueId, status, changedByRole, changedByUserId);
   if (!updated) {
     throw new HttpError(404, "Issue not found");
   }
@@ -145,6 +163,9 @@ export async function updateIssueStatus(issueId: string, status: IssueStatus) {
     id: updated._id.toString(),
     status: updated.status,
     updatedAt: updated.updatedAt,
+    statusUpdatedByRole: updated.statusUpdatedByRole,
+    statusUpdatedByUserId: updated.statusUpdatedByUserId,
+    statusUpdatedAt: updated.statusUpdatedAt,
   };
 }
 
@@ -180,6 +201,9 @@ export async function getIssueReport(issueId: string, reporterId: string) {
     location: issue.location,
     photos: issue.photos ?? [],
     createdAt: issue.createdAt,
+    statusUpdatedByRole: issue.statusUpdatedByRole,
+    statusUpdatedByUserId: issue.statusUpdatedByUserId,
+    statusUpdatedAt: issue.statusUpdatedAt,
   };
 }
 
@@ -207,5 +231,8 @@ export async function getIssueReportForAuthority(issueId: string) {
     createdAt: issue.createdAt,
     reporterId: reporter?._id?.toString(),
     reporterName: reporter?.fullName,
+    statusUpdatedByRole: issue.statusUpdatedByRole,
+    statusUpdatedByUserId: issue.statusUpdatedByUserId,
+    statusUpdatedAt: issue.statusUpdatedAt,
   };
 }
