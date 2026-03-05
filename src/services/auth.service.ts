@@ -7,6 +7,7 @@ import type { RegisterInput } from "../dtos/auth/register.dto";
 import { roleFromEmail } from "./roleFromEmail.service";
 import { env } from "../config/env";
 import type { LoginResult, RegisterResult } from "../types/auth.types";
+import { createNotifications } from "./notification.service";
 
 function normalizeNepalPhone(body: RegisterInput) {
   if (body.phoneCountryCode && body.phoneNationalNumber) {
@@ -126,6 +127,29 @@ export async function registerCitizen(body: RegisterInput): Promise<RegisterResu
     },
     role,
   );
+
+  try {
+    const admins = await UserRepository.listActiveUserIdsByRoles(["admin"]);
+    if (admins.length) {
+      await createNotifications(
+        admins.map((admin) => ({
+          recipientUserId: admin.userId,
+          recipientRole: "admin",
+          type: "system",
+          title: "New user registration",
+          message: `${user.fullName} has registered as a citizen user.`,
+          entityType: "system",
+          metadata: {
+            role: user.role,
+            email: user.email,
+            userId: user._id.toString(),
+          },
+        }))
+      );
+    }
+  } catch (error) {
+    console.error("Failed to create new registration notification", error);
+  }
 
   return {
     user: {

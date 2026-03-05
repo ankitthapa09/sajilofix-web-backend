@@ -202,6 +202,35 @@ export async function updateIssueStatus(
     }
   }
 
+  if (["in_progress", "resolved", "rejected"].includes(updated.status)) {
+    try {
+      const admins = await UserRepository.listActiveUserIdsByRoles(["admin"]);
+      const adminRecipients = admins.filter((admin) => admin.userId !== changedByUserId);
+
+      if (adminRecipients.length) {
+        await createNotifications(
+          adminRecipients.map((admin) => ({
+            recipientUserId: admin.userId,
+            recipientRole: "admin",
+            type: "issue_status_changed",
+            title: "Issue status changed",
+            message: `Issue "${updated.title}" was moved to ${updated.status.replace(/_/g, " ")} by ${
+              changedByRole === "admin" ? "Admin" : "Authority"
+            }.`,
+            entityType: "issue",
+            entityId: updated._id.toString(),
+            metadata: {
+              status: updated.status,
+              changedByRole,
+            },
+          }))
+        );
+      }
+    } catch (error) {
+      console.error("Failed to create admin status-change notification", error);
+    }
+  }
+
   return {
     id: updated._id.toString(),
     status: updated.status,

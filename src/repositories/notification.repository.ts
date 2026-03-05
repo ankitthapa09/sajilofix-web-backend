@@ -80,4 +80,8 @@ export const NotificationRepository = {
       }
     ).exec();
   },
+
+  deleteOne: async (id: string, recipientUserId: string) => {
+    return NotificationModel.findOneAndDelete({ _id: id, recipientUserId }).exec();
+  },
 };
