@@ -11,6 +11,7 @@ import { reverseGeocode } from "../controller/issues/reverseGeocode.controller";
 import { updateIssueStatusController } from "../controller/issues/updateIssueStatus.controller";
 import { updateIssueStatusSchema } from "../dtos/issues/updateIssueStatus.dto";
 import { deleteIssue } from "../controller/issues/deleteIssue.controller";
+import { getIssueReporterProfile } from "../controller/issues/getIssueReporterProfile.controller";
 
 export const issueRouter = Router();
 
@@ -91,6 +92,9 @@ issueRouter.get("/priority", requireAuth, listPriorityIssues);
 
 // GET /api/issues/reverse-geocode?lat=..&lng=..
 issueRouter.get("/reverse-geocode", requireAuth, reverseGeocode);
+
+// GET /api/issues/reporters/:reporterId
+issueRouter.get("/reporters/:reporterId", requireAuth, getIssueReporterProfile);
 
 // GET /api/issues/:id
 issueRouter.get("/:id", requireAuth, getIssue);

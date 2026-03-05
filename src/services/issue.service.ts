@@ -114,7 +114,7 @@ export async function listAllIssueReports() {
   const items = await IssueRepository.listAll();
 
   return items.map((issue) => {
-    const reporter = issue.reporterId as { _id?: Types.ObjectId; fullName?: string } | null;
+    const reporter = issue.reporterId as { _id?: Types.ObjectId; fullName?: string; profilePhoto?: string } | null;
     return {
       id: issue._id.toString(),
       category: issue.category,
@@ -127,6 +127,7 @@ export async function listAllIssueReports() {
       createdAt: issue.createdAt,
       reporterId: reporter?._id?.toString(),
       reporterName: reporter?.fullName,
+      reporterPhoto: reporter?.profilePhoto,
       statusUpdatedByRole: issue.statusUpdatedByRole,
       statusUpdatedByUserId: issue.statusUpdatedByUserId,
       statusUpdatedAt: issue.statusUpdatedAt,
@@ -139,7 +140,7 @@ export async function listPriorityIssueReports() {
   const urgencyWeight: Record<string, number> = { urgent: 2, high: 1 };
 
   const mapped = items.map((issue) => {
-    const reporter = issue.reporterId as { _id?: Types.ObjectId; fullName?: string } | null;
+    const reporter = issue.reporterId as { _id?: Types.ObjectId; fullName?: string; profilePhoto?: string } | null;
     return {
       id: issue._id.toString(),
       category: issue.category,
@@ -152,6 +153,7 @@ export async function listPriorityIssueReports() {
       createdAt: issue.createdAt,
       reporterId: reporter?._id?.toString(),
       reporterName: reporter?.fullName,
+      reporterPhoto: reporter?.profilePhoto,
       statusUpdatedByRole: issue.statusUpdatedByRole,
       statusUpdatedByUserId: issue.statusUpdatedByUserId,
       statusUpdatedAt: issue.statusUpdatedAt,
@@ -242,6 +244,12 @@ export async function getIssueReport(issueId: string, reporterId: string) {
     location: issue.location,
     photos: issue.photos ?? [],
     createdAt: issue.createdAt,
+    statusHistory: (issue.statusHistory ?? []).map((entry) => ({
+      status: entry.status,
+      changedByRole: entry.changedByRole,
+      changedByUserId: entry.changedByUserId,
+      changedAt: entry.changedAt,
+    })),
     statusUpdatedByRole: issue.statusUpdatedByRole,
     statusUpdatedByUserId: issue.statusUpdatedByUserId,
     statusUpdatedAt: issue.statusUpdatedAt,
@@ -258,7 +266,7 @@ export async function getIssueReportForAuthority(issueId: string) {
     throw new HttpError(404, "Issue not found");
   }
 
-  const reporter = issue.reporterId as { _id?: Types.ObjectId; fullName?: string } | null;
+  const reporter = issue.reporterId as { _id?: Types.ObjectId; fullName?: string; profilePhoto?: string } | null;
 
   return {
     id: issue._id.toString(),
@@ -272,9 +280,44 @@ export async function getIssueReportForAuthority(issueId: string) {
     createdAt: issue.createdAt,
     reporterId: reporter?._id?.toString(),
     reporterName: reporter?.fullName,
+    reporterPhoto: reporter?.profilePhoto,
     statusUpdatedByRole: issue.statusUpdatedByRole,
     statusUpdatedByUserId: issue.statusUpdatedByUserId,
     statusUpdatedAt: issue.statusUpdatedAt,
+  };
+}
+
+export async function getIssueReporterProfileForAuthority(reporterId: string) {
+  if (!Types.ObjectId.isValid(reporterId)) {
+    throw new HttpError(400, "Invalid reporter id");
+  }
+
+  const user = await UserRepository.findById(reporterId, "citizen");
+  if (!user) {
+    throw new HttpError(404, "Reporter not found");
+  }
+
+  return {
+    id: user._id.toString(),
+    fullName: user.fullName,
+    email: user.email,
+    phone: user.phone,
+    municipality: user.municipality,
+    district: user.district,
+    wardNumber: user.wardNumber,
+    tole: user.tole,
+    fullAddress: [
+      user.tole,
+      user.wardNumber ? `Ward ${user.wardNumber}` : undefined,
+      user.municipality,
+      user.district,
+    ]
+      .filter(Boolean)
+      .join(", "),
+    citizenshipNumber: user.citizenshipNumber,
+    status: user.status,
+    profilePhoto: user.profilePhoto,
+    role: user.role,
   };
 }
 
