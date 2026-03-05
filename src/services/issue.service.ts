@@ -277,3 +277,18 @@ export async function getIssueReportForAuthority(issueId: string) {
     statusUpdatedAt: issue.statusUpdatedAt,
   };
 }
+
+export async function deleteIssueReport(issueId: string) {
+  if (!Types.ObjectId.isValid(issueId)) {
+    throw new HttpError(400, "Invalid issue id");
+  }
+
+  const deleted = await IssueRepository.deleteById(issueId);
+  if (!deleted) {
+    throw new HttpError(404, "Issue not found");
+  }
+
+  return {
+    id: deleted._id.toString(),
+  };
+}

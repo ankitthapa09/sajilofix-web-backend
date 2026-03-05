@@ -10,6 +10,7 @@ import { listPriorityIssues } from "../controller/issues/listPriorityIssues.cont
 import { reverseGeocode } from "../controller/issues/reverseGeocode.controller";
 import { updateIssueStatusController } from "../controller/issues/updateIssueStatus.controller";
 import { updateIssueStatusSchema } from "../dtos/issues/updateIssueStatus.dto";
+import { deleteIssue } from "../controller/issues/deleteIssue.controller";
 
 export const issueRouter = Router();
 
@@ -93,6 +94,9 @@ issueRouter.get("/reverse-geocode", requireAuth, reverseGeocode);
 
 // GET /api/issues/:id
 issueRouter.get("/:id", requireAuth, getIssue);
+
+// DELETE /api/issues/:id
+issueRouter.delete("/:id", requireAuth, deleteIssue);
 
 // PATCH /api/issues/:id/status
 issueRouter.patch(

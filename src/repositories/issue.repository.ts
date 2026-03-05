@@ -39,6 +39,10 @@ export const IssueRepository = {
     return IssueReportModel.find({ reporterId }).sort({ createdAt: -1 }).exec();
   },
 
+  deleteById: async (id: string) => {
+    return IssueReportModel.findByIdAndDelete(id).exec();
+  },
+
   updateStatus: async (id: string, status: string, changedByRole: "admin" | "authority", changedByUserId: string) => {
     const changedAt = new Date();
     return IssueReportModel.findByIdAndUpdate(
