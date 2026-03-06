@@ -6,11 +6,13 @@ export async function listIssues(req: Request, res: Response, next: NextFunction
   try {
     const reporterId = req.auth?.userId;
     const role = req.auth?.role;
+    const scope = typeof req.query.scope === "string" ? req.query.scope.trim().toLowerCase() : "";
+    const includeAll = scope === "all";
     if (!reporterId) {
       throw new HttpError(401, "Unauthorized");
     }
 
-    const data = role === "authority" || role === "admin"
+    const data = includeAll || role === "authority" || role === "admin"
       ? await listAllIssueReports()
       : await listIssueReports(reporterId);
 

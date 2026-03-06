@@ -8,6 +8,7 @@ import { getIssue } from "../controller/issues/getIssue.controller";
 import { listIssues } from "../controller/issues/listIssues.controller";
 import { listPriorityIssues } from "../controller/issues/listPriorityIssues.controller";
 import { reverseGeocode } from "../controller/issues/reverseGeocode.controller";
+import { searchLocations } from "../controller/issues/searchLocations.controller";
 import { updateIssueStatusController } from "../controller/issues/updateIssueStatus.controller";
 import { updateIssueStatusSchema } from "../dtos/issues/updateIssueStatus.dto";
 import { deleteIssue } from "../controller/issues/deleteIssue.controller";
@@ -92,6 +93,9 @@ issueRouter.get("/priority", requireAuth, listPriorityIssues);
 
 // GET /api/issues/reverse-geocode?lat=..&lng=..
 issueRouter.get("/reverse-geocode", requireAuth, reverseGeocode);
+
+// GET /api/issues/search-location?q=...&limit=...
+issueRouter.get("/search-location", requireAuth, searchLocations);
 
 // GET /api/issues/reporters/:reporterId
 issueRouter.get("/reporters/:reporterId", requireAuth, getIssueReporterProfile);
