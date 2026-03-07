@@ -104,7 +104,12 @@ export const UserRepository = {
     const records = await Promise.all(
       uniqueRoles.map(async (role) => {
         const users = await modelForRole(role)
-          .find({ status: "active" }, { _id: 1 })
+          .find(
+            {
+              $or: [{ status: "active" }, { status: { $exists: false } }],
+            },
+            { _id: 1 }
+          )
           .lean()
           .exec();
 

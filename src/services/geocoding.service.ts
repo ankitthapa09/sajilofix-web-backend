@@ -37,6 +37,13 @@ type NominatimResponse = {
   };
 };
 
+type NominatimSearchResponseItem = {
+  lat?: string;
+  lon?: string;
+  display_name?: string;
+  address?: NominatimResponse["address"];
+};
+
 function extractWard(value?: string) {
   if (!value) return undefined;
   const normalized = value.trim();
@@ -125,4 +132,58 @@ export async function reverseGeocodeCoordinates(latitude: number, longitude: num
 
   const payload = (await response.json()) as NominatimResponse;
   return normalizeLocationFromNominatim(latitude, longitude, payload);
+}
+
+export async function searchLocationsInNepal(query: string, limit = 6): Promise<ReverseGeoAddress[]> {
+  const normalizedQuery = query.trim();
+  if (normalizedQuery.length < 2) {
+    throw new HttpError(400, "Search query must be at least 2 characters");
+  }
+
+  const boundedLimit = Math.min(Math.max(1, limit), 10);
+  const url = new URL("https://nominatim.openstreetmap.org/search");
+  url.searchParams.set("format", "jsonv2");
+  url.searchParams.set("q", normalizedQuery);
+  url.searchParams.set("addressdetails", "1");
+  url.searchParams.set("countrycodes", "np");
+  url.searchParams.set("limit", String(boundedLimit));
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      "User-Agent": "SajiloFix-Web/1.0",
+      "Accept-Language": "en",
+    },
+  });
+
+  if (!response.ok) {
+    throw new HttpError(502, "Location search service unavailable");
+  }
+
+  const payload = (await response.json()) as NominatimSearchResponseItem[];
+  const seen = new Set<string>();
+
+  return payload
+    .map((item) => {
+      const latitude = Number(item.lat ?? "");
+      const longitude = Number(item.lon ?? "");
+      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+      if (
+        latitude < NEPAL_BOUNDS.minLat ||
+        latitude > NEPAL_BOUNDS.maxLat ||
+        longitude < NEPAL_BOUNDS.minLng ||
+        longitude > NEPAL_BOUNDS.maxLng
+      ) {
+        return null;
+      }
+
+      const key = `${latitude.toFixed(5)}:${longitude.toFixed(5)}`;
+      if (seen.has(key)) return null;
+      seen.add(key);
+
+      return normalizeLocationFromNominatim(latitude, longitude, {
+        display_name: item.display_name,
+        address: item.address,
+      });
+    })
+    .filter((item): item is ReverseGeoAddress => item !== null);
 }

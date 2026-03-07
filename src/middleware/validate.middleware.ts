@@ -23,7 +23,14 @@ export function validateQuery(schema: ZodTypeAny) {
       return next(new HttpError(400, message));
     }
 
-    req.query = result.data as Request["query"];
+    const parsedQuery = result.data as Record<string, unknown>;
+    const targetQuery = req.query as Record<string, unknown>;
+
+    for (const key of Object.keys(targetQuery)) {
+      delete targetQuery[key];
+    }
+
+    Object.assign(targetQuery, parsedQuery);
     return next();
   };
 }
@@ -36,7 +43,14 @@ export function validateParams(schema: ZodTypeAny) {
       return next(new HttpError(400, message));
     }
 
-    req.params = result.data as Request["params"];
+    const parsedParams = result.data as Record<string, string>;
+    const targetParams = req.params as Record<string, string>;
+
+    for (const key of Object.keys(targetParams)) {
+      delete targetParams[key];
+    }
+
+    Object.assign(targetParams, parsedParams);
     return next();
   };
 }

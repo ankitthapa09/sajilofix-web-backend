@@ -7,6 +7,8 @@ import { deleteMePhoto } from "../controller/users/deleteMePhoto.controller";
 import { validateBody } from "../middleware/validate.middleware";
 import { updateMeSchema } from "../dtos/users/updateMe.dto";
 import { updateMe } from "../controller/users/updateMe.controller";
+import { changeMyPasswordSchema } from "../dtos/users/changeMyPassword.dto";
+import { changeMyPasswordController } from "../controller/users/changeMyPassword.controller";
 
 export const userRouter = Router();
 
@@ -21,3 +23,6 @@ userRouter.put("/me/photo", requireAuth, profilePhotoUpload.single("photo"), upd
 
 // DELETE /api/users/me/photo
 userRouter.delete("/me/photo", requireAuth, deleteMePhoto);
+
+// PATCH /api/users/me/password
+userRouter.patch("/me/password", requireAuth, validateBody(changeMyPasswordSchema), changeMyPasswordController);

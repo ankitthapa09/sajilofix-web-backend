@@ -1,5 +1,6 @@
 import path from "path";
 import fs from "fs";
+import bcrypt from "bcryptjs";
 import { HttpError } from "../errors/httpError";
 import { UserRepository } from "../repositories/user.repository";
 import { PROFILE_PHOTO_RELATIVE_DIR } from "../middleware/upload.middleware";
@@ -181,4 +182,24 @@ export async function deleteMyProfilePhoto(userId: string, role: string | undefi
   if (!user) throw new HttpError(404, "User not found");
 
   return toProfilePayload(user);
+}
+
+export async function changeMyPassword(
+  userId: string,
+  role: string | undefined,
+  currentPassword: string,
+  newPassword: string
+): Promise<void> {
+  if (!userId) throw new HttpError(401, "Unauthorized");
+
+  const user = await UserRepository.findById(userId, role as any);
+  if (!user) throw new HttpError(404, "User not found");
+
+  const currentOk = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!currentOk) {
+    throw new HttpError(400, "Current password is incorrect");
+  }
+
+  const nextHash = await bcrypt.hash(newPassword, 10);
+  await UserRepository.updateById(userId, { passwordHash: nextHash } as any, role as any);
 }

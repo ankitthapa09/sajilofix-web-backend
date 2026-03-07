@@ -14,14 +14,14 @@ export const IssueRepository = {
 
   findByIdWithReporter: async (id: string) => {
     return IssueReportModel.findById(id)
-      .populate("reporterId", "fullName")
+      .populate("reporterId", "fullName profilePhoto")
       .exec();
   },
 
   listAll: async () => {
     return IssueReportModel.find()
       .sort({ createdAt: -1 })
-      .populate("reporterId", "fullName")
+      .populate("reporterId", "fullName profilePhoto")
       .exec();
   },
 
@@ -31,12 +31,16 @@ export const IssueRepository = {
       status: { $in: ["pending", "in_progress"] },
     })
       .sort({ createdAt: -1 })
-      .populate("reporterId", "fullName")
+      .populate("reporterId", "fullName profilePhoto")
       .exec();
   },
 
   listByReporter: async (reporterId: string) => {
     return IssueReportModel.find({ reporterId }).sort({ createdAt: -1 }).exec();
+  },
+
+  deleteById: async (id: string) => {
+    return IssueReportModel.findByIdAndDelete(id).exec();
   },
 
   updateStatus: async (id: string, status: string, changedByRole: "admin" | "authority", changedByUserId: string) => {

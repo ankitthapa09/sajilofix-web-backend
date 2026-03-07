@@ -117,6 +117,19 @@ export async function markAllMyNotificationsRead(userId: string) {
   };
 }
 
+export async function deleteMyNotification(userId: string, notificationId: string) {
+  const authUserId = requireUserId(userId);
+
+  const deleted = await NotificationRepository.deleteOne(notificationId, authUserId);
+  if (!deleted) {
+    throw new HttpError(404, "Notification not found");
+  }
+
+  return {
+    id: String(deleted._id),
+  };
+}
+
 export async function notifyIssueStatusChanged(input: {
   recipientUserId: string;
   recipientRole: NotificationRecipientRole;
